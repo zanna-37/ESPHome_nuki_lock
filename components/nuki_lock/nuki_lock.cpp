@@ -60,19 +60,29 @@ void NukiLockComponent::update_status()
         this->statusUpdateConsecutiveErrors_ = 0;
         NukiLock::LockState currentLockState = this->retrievedKeyTurnerState_.lockState;
         char currentLockStateAsString[30];
-        NukiLock::lockstateToString(currentLockState, currentLockStateAsString);
+        bool isLockNGo = this->retrievedKeyTurnerState_.lockNgoTimer != 0;
+        if (isLockNGo) {
+            strcpy(currentLockStateAsString, "lockNGo");
+        } else {
+            NukiLock::lockstateToString(currentLockState, currentLockStateAsString);
+        }
 
-        ESP_LOGI(TAG, "Bat state: %#x, Bat crit: %d, Bat perc:%d lock state: %s (%d) %d:%d:%d",
+        ESP_LOGI(TAG, "Bat state: %#x, Bat crit: %d, Bat perc: %d, lock state: %s (%d), lockNGo timer: %d, %d:%d:%d",
           this->retrievedKeyTurnerState_.criticalBatteryState,
           this->nukiLock_.isBatteryCritical(),
           this->nukiLock_.getBatteryPerc(),
           currentLockStateAsString,
           currentLockState,
+          this->retrievedKeyTurnerState_.lockNgoTimer,
           this->retrievedKeyTurnerState_.currentTimeHour,
           this->retrievedKeyTurnerState_.currentTimeMinute,
           this->retrievedKeyTurnerState_.currentTimeSecond);
 
-        this->publish_state(this->nuki_to_lock_state(this->retrievedKeyTurnerState_.lockState));
+        if (isLockNGo) {
+            this->publish_state(lock::LOCK_STATE_LOCKING);
+        } else {
+            this->publish_state(this->nuki_to_lock_state(this->retrievedKeyTurnerState_.lockState));
+        }
         this->is_connected_->publish_state(true);
         if (this->battery_critical_ != nullptr)
             this->battery_critical_->publish_state(this->nukiLock_.isBatteryCritical());
@@ -86,6 +96,7 @@ void NukiLockComponent::update_status()
         if (
             this->retrievedKeyTurnerState_.lockState == NukiLock::LockState::Locking
             || this->retrievedKeyTurnerState_.lockState == NukiLock::LockState::Unlocking
+            || isLockNGo
         ) {
             // Schedule a status update without waiting for the next advertisement because the lock
             // is in a transition state. This will speed up the feedback.
