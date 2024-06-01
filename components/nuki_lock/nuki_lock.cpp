@@ -61,6 +61,10 @@ void NukiLockComponent::update_status()
         NukiLock::LockState currentLockState = this->retrievedKeyTurnerState_.lockState;
         char currentLockStateAsString[30];
         NukiLock::lockstateToString(currentLockState, currentLockStateAsString);
+        char lastLockAction[30];
+        NukiLock::lockactionToString(this->retrievedKeyTurnerState_.lastLockAction, lastLockAction);
+        char lastLockActionTrigger[30];
+        NukiLock::triggerToString(this->retrievedKeyTurnerState_.lastLockActionTrigger, lastLockActionTrigger);
 
         ESP_LOGI(TAG, "Bat state: %#x, Bat crit: %d, Bat perc:%d lock state: %s (%d) %d:%d:%d",
           this->retrievedKeyTurnerState_.criticalBatteryState,
@@ -78,6 +82,10 @@ void NukiLockComponent::update_status()
             this->battery_critical_->publish_state(this->nukiLock_.isBatteryCritical());
         if (this->battery_level_ != nullptr)
             this->battery_level_->publish_state(this->nukiLock_.getBatteryPerc());
+        if (this->last_lock_action_ != nullptr)
+            this->last_lock_action_->publish_state(lastLockAction);
+        if (this->last_lock_action_trigger_ != nullptr)
+            this->last_lock_action_trigger_->publish_state(lastLockActionTrigger);
         if (this->door_sensor_ != nullptr)
             this->door_sensor_->publish_state(this->nuki_doorsensor_to_binary(this->retrievedKeyTurnerState_.doorSensorState));
         if (this->door_sensor_state_ != nullptr)

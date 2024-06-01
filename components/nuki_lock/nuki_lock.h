@@ -43,6 +43,8 @@ class NukiLockComponent : public lock::Lock, public PollingComponent, public api
         void set_is_paired(binary_sensor::BinarySensor *is_paired) { this->is_paired_ = is_paired; }
         void set_battery_critical(binary_sensor::BinarySensor *battery_critical) { this->battery_critical_ = battery_critical; }
         void set_battery_level(sensor::Sensor *battery_level) { this->battery_level_ = battery_level; }
+        void set_last_lock_action(text_sensor::TextSensor *last_lock_action) { this->last_lock_action_ = last_lock_action; }
+        void set_last_lock_action_trigger(text_sensor::TextSensor *last_lock_action_trigger) { this->last_lock_action_trigger_ = last_lock_action_trigger; }
         void set_door_sensor(binary_sensor::BinarySensor *door_sensor) { this->door_sensor_ = door_sensor; }
         void set_door_sensor_state(text_sensor::TextSensor *door_sensor_state) { this->door_sensor_state_ = door_sensor_state; }
         void set_unpair(bool unpair) {this->unpair_ = unpair; }
@@ -67,6 +69,8 @@ class NukiLockComponent : public lock::Lock, public PollingComponent, public api
         binary_sensor::BinarySensor *is_connected_{nullptr};
         binary_sensor::BinarySensor *is_paired_{nullptr};
         binary_sensor::BinarySensor *battery_critical_{nullptr};
+        text_sensor::TextSensor *last_lock_action_{nullptr};
+        text_sensor::TextSensor *last_lock_action_trigger_{nullptr};
         binary_sensor::BinarySensor *door_sensor_{nullptr};
         text_sensor::TextSensor *door_sensor_state_{nullptr};
         sensor::Sensor *battery_level_{nullptr};

@@ -10,6 +10,8 @@ CONF_IS_PAIRED = "is_paired"
 CONF_UNPAIR = "unpair"
 CONF_BATTERY_CRITICAL = "battery_critical"
 CONF_BATTERY_LEVEL = "battery_level"
+CONF_LAST_LOCK_ACTION = "last_lock_action"
+CONF_LAST_LOCK_ACTION_TRIGGER = "last_lock_action_trigger"
 CONF_DOOR_SENSOR = "door_sensor"
 CONF_DOOR_SENSOR_STATE = "door_sensor_state"
 
@@ -31,6 +33,8 @@ CONFIG_SCHEMA = lock.LOCK_SCHEMA.extend({
                     device_class=DEVICE_CLASS_BATTERY,
                     unit_of_measurement=UNIT_PERCENT,
                 ),
+    cv.Optional(CONF_LAST_LOCK_ACTION): text_sensor.text_sensor_schema(),
+    cv.Optional(CONF_LAST_LOCK_ACTION_TRIGGER): text_sensor.text_sensor_schema(),
     cv.Optional(CONF_DOOR_SENSOR): binary_sensor.binary_sensor_schema(
                     device_class=DEVICE_CLASS_DOOR,
                 ),
@@ -59,6 +63,14 @@ async def to_code(config):
     if CONF_BATTERY_LEVEL in config:
         sens = await sensor.new_sensor(config[CONF_BATTERY_LEVEL])
         cg.add(var.set_battery_level(sens))
+
+    if CONF_LAST_LOCK_ACTION in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_LAST_LOCK_ACTION])
+        cg.add(var.set_last_lock_action(sens))
+
+    if CONF_LAST_LOCK_ACTION_TRIGGER in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_LAST_LOCK_ACTION_TRIGGER])
+        cg.add(var.set_last_lock_action_trigger(sens))
 
     if CONF_DOOR_SENSOR in config:
         sens = await binary_sensor.new_binary_sensor(config[CONF_DOOR_SENSOR])
